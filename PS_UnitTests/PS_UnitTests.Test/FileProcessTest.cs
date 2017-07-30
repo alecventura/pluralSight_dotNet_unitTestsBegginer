@@ -62,6 +62,10 @@ namespace PS_UnitTests.Test
         }
 
         [TestMethod]
+        [Description("Check if file name exists")]
+        [Owner("aVentura")]
+        [Priority(0)]
+        [TestCategory("NoException")]
         public void FileNameDoesExists()
         {
             FileProcess fp = new FileProcess();
@@ -73,6 +77,10 @@ namespace PS_UnitTests.Test
         }
 
         [TestMethod]
+        [Description("Check if file name does NOT exists")]
+        [Owner("aVentura")]
+        [Priority(0)]
+        [TestCategory("NoException")]
         public void FileNameDoesNotExists()
         {
             FileProcess fp = new FileProcess();
@@ -85,6 +93,9 @@ namespace PS_UnitTests.Test
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentNullException))]
+        [Owner("aVentura")]
+        [Priority(1)]
+        [TestCategory("Exception")]
         public void FileNameNullOrEmpty_ThrowsArgumentNullException()
         {
             FileProcess fp = new FileProcess();
@@ -93,6 +104,9 @@ namespace PS_UnitTests.Test
         }
 
         [TestMethod]
+        [Owner("aVentura")]
+        [Priority(1)]
+        [TestCategory("Exception")]
         public void FileNameNullOrEmpty_ThrowsArgumentNullExceptionUsingTryCatch()
         {
             FileProcess fp = new FileProcess();
@@ -107,6 +121,39 @@ namespace PS_UnitTests.Test
             }
 
             Assert.Fail("Should return exception");
+        }
+
+        [TestMethod]
+        [Ignore]
+        public void IgnoreThisOne()
+        {
+            Assert.IsTrue(true);
+        }
+
+        [TestMethod]
+        [Timeout(1000)]
+        public void SimulateTimeOut()
+        {
+            System.Threading.Thread.Sleep(500);
+        }
+
+        private const string FILE_NAME = @"FileToDeploy.txt";
+
+        [TestMethod]
+        [Owner("aVentura")]
+        [DeploymentItem(FILE_NAME)]
+        public void FileNameDoesExistUsingDeploymentItem()
+        {
+            FileProcess fp = new FileProcess();
+            string fileName;
+            bool fromCall;
+
+            fileName = TestContext.DeploymentDirectory + @"\" + FILE_NAME;
+            TestContext.WriteLine("Checking file: " + fileName);
+
+            fromCall = fp.FileExists(fileName);
+
+            Assert.IsTrue(fromCall);
         }
     }
 }
