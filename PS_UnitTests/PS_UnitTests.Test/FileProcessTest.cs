@@ -29,7 +29,7 @@ namespace PS_UnitTests.Test
         [TestInitialize]
         public void TestInitialize()
         {
-            if (TestContext.TestName == "FileNameDoesExists")
+            if (TestContext.TestName.StartsWith("FileNameDoesExists"))
             {
                 SetGoodFileName();
                 File.AppendAllText(_GoodFileName, "Some Text");
@@ -39,7 +39,7 @@ namespace PS_UnitTests.Test
         [TestCleanup]
         public void TestCleanup()
         {
-            if (TestContext.TestName == "FileNameDoesExists")
+            if (TestContext.TestName.StartsWith("FileNameDoesExists"))
             {
                 if (!string.IsNullOrEmpty(_GoodFileName))
                 {
@@ -74,6 +74,17 @@ namespace PS_UnitTests.Test
             fromCall = fp.FileExists(_GoodFileName);
 
             Assert.IsTrue(fromCall);
+        }
+
+        [TestMethod]
+        public void FileNameDoesExistsSimpleMessage()
+        {
+            FileProcess fp = new FileProcess();
+            bool fromCall;
+
+            fromCall = fp.FileExists(_GoodFileName);
+
+            Assert.IsTrue(fromCall, "File does NOT exists");
         }
 
         [TestMethod]
@@ -154,6 +165,43 @@ namespace PS_UnitTests.Test
             fromCall = fp.FileExists(fileName);
 
             Assert.IsTrue(fromCall);
+        }
+
+
+        // Data Driven Test
+
+        [TestMethod]
+        [DataSource("System.Data.SqlClient", 
+            "Server=Localhost;Database=Sandbox;Integrated Security=Yes", 
+            "tests.FileProcessTest", DataAccessMethod.Sequential)]
+        public void FileExistsTestFromDB()
+        {
+            FileProcess fp = new FileProcess();
+            string fileName;
+            bool expectedValue;
+            bool causesException;
+            bool fromCall;
+
+            // Get values from data row
+            fileName = TestContext.DataRow["FileName"].ToString();
+            expectedValue = Convert.ToBoolean(TestContext.DataRow["ExpectedValue"]);
+            causesException = Convert.ToBoolean(TestContext.DataRow["CausesException"]);
+
+            // Check assertion
+            try
+            {
+                fromCall = fp.FileExists(fileName);
+                Assert.AreEqual(expectedValue, fromCall);
+            }
+            catch (AssertFailedException ex)
+            {
+
+                throw ex;
+            }
+            catch (ArgumentNullException)
+            {
+                Assert.IsTrue(causesException);
+            }
         }
     }
 }
